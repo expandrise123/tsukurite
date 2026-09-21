@@ -1,0 +1,306 @@
+/* ═══════════════════════════════════════════════════
+   デザイントークン
+
+   すべての数値はここに集約する。
+   個別のコンポーネントで生の rem 値を書かないこと。
+   （詳細はプロジェクトドキュメント「デザインルール」を参照）
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* ── 幅 ───────────────────────────────── */
+  --w: 44rem;         /* 本文。日本語で約40文字/行 = 最も読みやすい */
+  --w-wide: 60rem;    /* 一覧など、本文より広く取りたいとき */
+  --gutter: 1.25rem;  /* 画面端の余白 */
+
+  /* ── 余白スケール（4px基準）──────────────
+     この9段階以外は使わない。迷ったら1段階ずらす。 */
+  --s-1: 0.25rem;   /*  4px */
+  --s-2: 0.5rem;    /*  8px */
+  --s-3: 0.75rem;   /* 12px */
+  --s-4: 1rem;      /* 16px */
+  --s-5: 1.5rem;    /* 24px */
+  --s-6: 2rem;      /* 32px */
+  --s-7: 3rem;      /* 48px */
+  --s-8: 4rem;      /* 64px */
+  --s-9: 6rem;      /* 96px */
+
+  /* ── 文字サイズ ───────────────────────── */
+  --t-xs: 0.75rem;    /* 12px タグ・注記 */
+  --t-sm: 0.875rem;   /* 14px メタ情報・キャプション */
+  --t-base: 1rem;     /* 16px 本文。これより小さくしない */
+  --t-h3: 1.125rem;   /* 18px */
+  --t-h2: 1.375rem;   /* 22px */
+  --t-h1: 1.875rem;   /* 30px */
+
+  /* ── 行間 ─────────────────────────────── */
+  --lh-tight: 1.5;   /* 見出し */
+  --lh-base: 1.9;    /* 本文。日本語は欧文より広く取る */
+
+  /* ── 角丸 ─────────────────────────────── */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+
+  /* ── 色（ライト）──────────────────────
+     全テキストの組み合わせは WCAG AA 以上を確認済み。 */
+  --bg: #fdfcfa;          /* 背景。純白にしないことで目が疲れにくい */
+  --bg-soft: #f4f2ee;     /* 補助背景（引用・コード・要約ブロック） */
+  --fg: #1c1b19;          /* 本文       16.79:1 AAA */
+  --muted: #6b6862;       /* 補助文字    5.42:1 AA  */
+  --line: #e2dfd8;        /* 装飾的な区切り線 */
+  --line-strong: #a8a49b; /* 意味を持つ境界（フォーム枠など）。3:1以上 */
+  --accent: #b4552d;      /* リンク・強調  4.79:1 AA */
+  --code-bg: #24292e;
+}
+
+/* ── 色（ダーク）───────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #171614;
+    --bg-soft: #201e1b;
+    --fg: #eceae5;          /* 15.04:1 AAA */
+    --muted: #9c978e;       /*  6.23:1 AA  */
+    --line: #322f2a;
+    --line-strong: #5c574f;
+    --accent: #e08a5f;      /*  6.86:1 AA  */
+    --code-bg: #1e1e1e;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   ベース
+   ═══════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  /* 和文を先に置く。欧文フォントを先にすると和文のフォールバックが崩れる */
+  font-family:
+    'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', Meiryo,
+    system-ui, -apple-system, sans-serif;
+  font-size: var(--t-base);
+  line-height: var(--lh-base);
+  letter-spacing: 0.02em;
+  text-rendering: optimizeLegibility;
+}
+
+main {
+  max-width: var(--w);
+  margin: 0 auto;
+  padding: var(--s-7) var(--gutter) 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   タイポグラフィ
+   ═══════════════════════════════════════════════════ */
+
+/* 見出しは h1 → h2 → h3 の順で使う。
+   見た目で選ばず、構造として正しいレベルを選ぶこと。
+   AIは見出し階層から文章の論理を読み取っている。 */
+h1,
+h2,
+h3,
+h4 {
+  line-height: var(--lh-tight);
+  letter-spacing: 0.01em;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: var(--t-h1);
+  margin: 0 0 var(--s-4);
+}
+
+/* h2 の上の罫線が「章の区切り」を視覚的に作る */
+h2 {
+  font-size: var(--t-h2);
+  margin: var(--s-8) 0 var(--s-4);
+  padding-top: var(--s-2);
+  border-top: 1px solid var(--line);
+}
+
+h3 {
+  font-size: var(--t-h3);
+  margin: var(--s-6) 0 var(--s-3);
+}
+
+p {
+  margin: 0 0 var(--s-5);
+}
+
+strong {
+  font-weight: 700;
+}
+
+ul,
+ol {
+  padding-left: 1.4em;
+  margin: 0 0 var(--s-5);
+}
+
+li {
+  margin-bottom: var(--s-2);
+}
+
+blockquote {
+  margin: var(--s-6) 0;
+  padding: var(--s-1) 0 var(--s-1) var(--s-5);
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: var(--s-7) 0;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ═══════════════════════════════════════════════════
+   メディア
+   ═══════════════════════════════════════════════════ */
+
+/* 画像には width / height を必ず指定すること（レイアウトシフト防止）。
+   画像の中に文字を入れない — AIも読めず、検索にも引っかからない。 */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--r-md);
+}
+
+figure {
+  margin: var(--s-6) 0;
+}
+
+figcaption {
+  font-size: var(--t-sm);
+  color: var(--muted);
+  margin-top: var(--s-2);
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════
+   コード
+   ═══════════════════════════════════════════════════ */
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875em;
+}
+
+/* インラインコード */
+:not(pre) > code {
+  background: var(--bg-soft);
+  padding: 0.15em 0.4em;
+  border-radius: var(--r-sm);
+}
+
+/* コードブロック。必ず言語指定する（```js など） */
+pre {
+  background: var(--code-bg);
+  padding: var(--s-4) var(--s-5);
+  border-radius: var(--r-lg);
+  overflow-x: auto;
+  margin: 0 0 var(--s-5);
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════
+   表
+   比較はできるだけ表にする。AIが最も抽出しやすい形式。
+   ただし列は4つまで（スマホで破綻する）。
+   ═══════════════════════════════════════════════════ */
+
+.table-scroll {
+  overflow-x: auto;
+  margin: 0 0 var(--s-5);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 var(--s-5);
+  font-size: 0.92rem;
+}
+
+th,
+td {
+  border: 1px solid var(--line);
+  padding: var(--s-3) var(--s-4);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: var(--bg-soft);
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════
+   アクセシビリティ
+   ═══════════════════════════════════════════════════ */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   レスポンシブ
+   ブレークポイントは1つだけ。増やすと破綻する。
+   ═══════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  :root {
+    --t-h1: 1.5rem;
+    --t-h2: 1.25rem;
+  }
+  main {
+    padding-top: var(--s-6);
+  }
+  h2 {
+    margin-top: var(--s-7);
+  }
+}

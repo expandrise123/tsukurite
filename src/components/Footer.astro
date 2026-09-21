@@ -1,0 +1,56 @@
+---
+import { SITE, AUTHOR } from '../consts';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="desc">{SITE.description}</p>
+    <ul class="links">
+      <li><a href="/about">このサイトについて</a></li>
+      <li><a href="/rss.xml">RSS</a></li>
+      <li><a href="/sitemap.xml">サイトマップ</a></li>
+      <li><a href="/llms.txt">llms.txt</a></li>
+    </ul>
+    <p class="copy">© {year} {AUTHOR.name} — {SITE.nameEn}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    margin-top: 5rem;
+    padding: 2.5rem 0 3.5rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .wrap {
+    max-width: var(--w);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+  .desc {
+    margin: 0 0 1.25rem;
+    max-width: 48ch;
+    line-height: 1.8;
+  }
+  .links {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin: 0 0 1.5rem;
+    padding: 0;
+  }
+  .links a {
+    color: var(--muted);
+  }
+  .links a:hover {
+    color: var(--fg);
+  }
+  .copy {
+    margin: 0;
+    font-size: 0.8rem;
+    opacity: 0.75;
+  }
+</style>

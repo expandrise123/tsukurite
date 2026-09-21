@@ -1,0 +1,141 @@
+---
+/**
+ * <head> に入れるメタ情報と JSON-LD 構造化データをまとめて出力する。
+ *
+ * ここが「AIに選ばれるサイト」の心臓部。
+ * ブラウザには一切表示されないが、検索エンジンと生成AIはここを読んでいる。
+ */
+import { SITE, AUTHOR, EXPERIMENT } from '../consts';
+import type { SeoProps } from '../types';
+
+export type Props = SeoProps;
+
+const {
+  title,
+  description,
+  type = 'website',
+  publishedAt,
+  updatedAt,
+  tags = [],
+  image,
+  faq = [],
+} = Astro.props;
+
+// canonical URL（正規URL）。重複コンテンツ対策の基本。
+const canonical = new URL(Astro.url.pathname, SITE.url).href.replace(/\/$/, '') || SITE.url;
+
+const pageTitle = type === 'article' ? `${title} | ${SITE.name}` : title;
+const ogImage = new URL(image ?? '/og-default.png', SITE.url).href;
+
+const toIso = (d?: string | Date) =>
+  d ? (typeof d === 'string' ? new Date(d) : d).toISOString() : undefined;
+
+const published = toIso(publishedAt);
+const modified = toIso(updatedAt) ?? published;
+
+/* ── JSON-LD の組み立て ──────────────────────────────
+   @graph で複数のエンティティを1つのスクリプトにまとめる。
+   @id で相互参照させると、AIが「同じ著者・同じサイト」だと理解しやすい。 */
+
+const personId = `${SITE.url}/#person`;
+const siteId = `${SITE.url}/#website`;
+
+const person = {
+  '@type': 'Person',
+  '@id': personId,
+  name: AUTHOR.name,
+  jobTitle: AUTHOR.jobTitle,
+  url: AUTHOR.url,
+  ...(AUTHOR.sameAs.length > 0 ? { sameAs: AUTHOR.sameAs } : {}),
+};
+
+const website = {
+  '@type': 'WebSite',
+  '@id': siteId,
+  url: SITE.url,
+  name: SITE.name,
+  alternateName: SITE.nameEn,
+  description: SITE.description,
+  inLanguage: SITE.lang,
+  publisher: { '@id': personId },
+};
+
+const graph: Record<string, unknown>[] = [person, website];
+
+if (type === 'article') {
+  graph.push({
+    '@type': 'BlogPosting',
+    '@id': `${canonical}#article`,
+    headline: title,
+    description,
+    url: canonical,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    ...(published ? { datePublished: published } : {}),
+    ...(modified ? { dateModified: modified } : {}),
+    author: { '@id': personId },
+    publisher: { '@id': personId },
+    isPartOf: { '@id': siteId },
+    inLanguage: SITE.lang,
+    image: ogImage,
+    ...(tags.length > 0 ? { keywords: tags.join(', ') } : {}),
+  });
+
+  // パンくず。サイト内での位置をAIに伝える。
+  graph.push({
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'ホーム', item: SITE.url },
+      { '@type': 'ListItem', position: 2, name: title, item: canonical },
+    ],
+  });
+}
+
+// FAQ は AI が最も引用しやすい形式のひとつ。
+if (EXPERIMENT.faqSchema && faq.length > 0) {
+  graph.push({
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  });
+}
+
+const jsonLd = { '@context': 'https://schema.org', '@graph': graph };
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+{/* OGP：SNSでシェアされたときの見た目 */}
+<meta property="og:type" content={type === 'article' ? 'article' : 'website'} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:locale" content={SITE.locale} />
+{published && <meta property="article:published_time" content={published} />}
+{modified && <meta property="article:modified_time" content={modified} />}
+{tags.map((t) => <meta property="article:tag" content={t} />)}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<link rel="alternate" type="application/rss+xml" title={SITE.name} href="/rss.xml" />
+<link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+{/* 構造化データ本体。EXPERIMENT.jsonLd を false にすると出力されない */}
+{
+  EXPERIMENT.jsonLd && (
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+  )
+}

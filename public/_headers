@@ -1,0 +1,46 @@
+# Cloudflare Pages のセキュリティヘッダ設定
+#
+# このファイルは public/ に置くと、ビルド時に出力先のルートへコピーされ、
+# Cloudflare Pages が自動的に読み取ってHTTPヘッダとして付与する。
+# （ローカルの `npm run dev` では適用されない。デプロイ後に効く）
+#
+# 確認方法: https://securityheaders.com/ にサイトURLを入れる
+
+/*
+  # HTTPSを強制する。一度アクセスしたブラウザは以降HTTPで接続しなくなる。
+  # max-age=63072000 は2年。preload は一度付けると解除が面倒なので、
+  # 運用が安定してから付けるのでもよい。
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+
+  # Content-Type を無視した内容推測を禁止する。
+  # テキストファイルをスクリプトとして実行されるのを防ぐ。
+  X-Content-Type-Options: nosniff
+
+  # 他サイトのiframeに埋め込まれるのを禁止（クリックジャッキング対策）
+  X-Frame-Options: DENY
+
+  # リファラの送りすぎを防ぐ。外部ドメインにはオリジンだけ送る。
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # 使わないブラウザ機能を明示的に無効化する
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+
+  # ── Content-Security-Policy ──────────────────────────
+  # 読み込める資源をホワイトリストで制限する。最も強力だが、最も壊れやすい。
+  #
+  # 現状は外部スクリプトを一切使っていない前提の設定。
+  # style-src に 'unsafe-inline' が必要なのは、Astroがコンポーネント単位の
+  # スタイルを <style> タグとして埋め込むため。
+  #
+  # ★ アナリティクスや埋め込みを追加したら、ここを必ず更新すること。
+  #   例) Google Analytics を入れる場合:
+  #       script-src に https://www.googletagmanager.com を追加
+  #       connect-src に https://*.google-analytics.com を追加
+  #
+  # デプロイ後、ブラウザの開発者ツール Console に CSP violation が
+  # 出ていないか必ず確認する。
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+
+# ビルド成果物は内容が変わればファイル名も変わるので、長期キャッシュしてよい
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

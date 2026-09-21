@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../consts';
+import { posts, formatDate } from '../lib/posts';
+---
+
+<BaseLayout title={`${SITE.name} — ${SITE.nameEn}`} description={SITE.description}>
+  <section class="intro">
+    <h1>つくりながら、記録する。</h1>
+    <p>{SITE.description}</p>
+  </section>
+
+  <section aria-labelledby="posts-heading">
+    <h2 id="posts-heading">記事</h2>
+    {
+      posts.length === 0 ? (
+        <p class="empty">
+          まだ記事がありません。<code>src/pages/blog/</code> に Markdown を置くと、ここに並びます。
+        </p>
+      ) : (
+        <ul class="post-list">
+          {posts.map((p) => (
+            <li>
+              <a href={p.url}>
+                <time datetime={new Date(p.frontmatter.publishedAt).toISOString()}>
+                  {formatDate(p.frontmatter.publishedAt)}
+                </time>
+                <span class="title">{p.frontmatter.title}</span>
+                <span class="desc">{p.frontmatter.description}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .intro {
+    margin-bottom: 4rem;
+  }
+  .intro h1 {
+    font-size: 1.6rem;
+  }
+  .intro p {
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .post-list li {
+    margin: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .post-list a {
+    display: grid;
+    gap: 0.3rem;
+    padding: 1.5rem 0;
+    text-decoration: none;
+    color: inherit;
+  }
+  .post-list a:hover .title {
+    color: var(--accent);
+  }
+  .post-list time {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+  .desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+  .empty {
+    color: var(--muted);
+  }
+</style>

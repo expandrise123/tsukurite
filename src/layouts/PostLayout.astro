@@ -1,0 +1,158 @@
+---
+/**
+ * 記事ページのレイアウト。
+ * src/pages/blog/*.md の frontmatter で layout に指定すると適用される。
+ *
+ * 記事の構造そのものが AI 最適化になっている:
+ *   - 冒頭に「結論ファースト」の要約ブロック
+ *   - <article> / <time> などのセマンティックなタグ
+ *   - frontmatter の faq がそのまま FAQPage 構造化データになる
+ */
+import BaseLayout from './BaseLayout.astro';
+import { EXPERIMENT } from '../consts';
+
+const { frontmatter } = Astro.props;
+const {
+  title,
+  description,
+  summary,
+  publishedAt,
+  updatedAt,
+  tags = [],
+  faq = [],
+  image,
+} = frontmatter;
+
+const fmt = (d: string | Date) =>
+  new Intl.DateTimeFormat('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(d));
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  type="article"
+  publishedAt={publishedAt}
+  updatedAt={updatedAt}
+  tags={tags}
+  faq={faq}
+  image={image}
+>
+  <article>
+    <header class="post-head">
+      <h1>{title}</h1>
+      <p class="meta">
+        <time datetime={new Date(publishedAt).toISOString()}>{fmt(publishedAt)} 公開</time>
+        {updatedAt && <> · <time datetime={new Date(updatedAt).toISOString()}>{fmt(updatedAt)} 更新</time></>}
+      </p>
+      {
+        tags.length > 0 && (
+          <ul class="tags">
+            {tags.map((t: string) => (
+              <li>{t}</li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+
+    {/* 結論ファーストの要約。AIはここを真っ先に読む。 */}
+    {
+      EXPERIMENT.summaryBlock && summary && (
+        <aside class="summary" aria-label="この記事の結論">
+          <p class="summary-label">この記事の結論</p>
+          <p class="summary-body">{summary}</p>
+        </aside>
+      )
+    }
+
+    <div class="prose">
+      <slot />
+    </div>
+
+    {/* FAQ。Seo.astro が同じ内容を FAQPage 構造化データとしても出力する。 */}
+    {
+      faq.length > 0 && (
+        <section class="faq" aria-labelledby="faq-heading">
+          <h2 id="faq-heading">よくある質問</h2>
+          <dl>
+            {faq.map((f: { q: string; a: string }) => (
+              <>
+                <dt>{f.q}</dt>
+                <dd>{f.a}</dd>
+              </>
+            ))}
+          </dl>
+        </section>
+      )
+    }
+  </article>
+
+  <p class="back"><a href="/">← 記事一覧へ</a></p>
+</BaseLayout>
+
+<style>
+  .post-head {
+    margin-bottom: 2.5rem;
+  }
+  .meta {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 0 0 0.75rem;
+  }
+  .tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+  }
+  .tags li {
+    font-size: 0.75rem;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.15rem 0.7rem;
+    margin: 0;
+  }
+
+  .summary {
+    background: var(--bg-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1.25rem 1.5rem;
+    margin: 0 0 3rem;
+  }
+  .summary-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+  }
+  .summary-body {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .faq {
+    margin-top: 4rem;
+  }
+  .faq dt {
+    font-weight: 700;
+    margin-top: 1.75rem;
+  }
+  .faq dd {
+    margin: 0.5rem 0 0;
+    color: var(--muted);
+  }
+
+  .back {
+    margin-top: 4rem;
+    font-size: 0.9rem;
+  }
+</style>

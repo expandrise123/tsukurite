@@ -1,0 +1,34 @@
+---
+/**
+ * 全ページ共通の骨格。
+ * <html> から <body> までの構造をここで一元管理する。
+ */
+import Seo from '../components/Seo.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE } from '../consts';
+import '../styles/global.css';
+import type { SeoProps } from '../types';
+
+export interface Props extends SeoProps {
+  /** true にすると本文幅を広くする（一覧ページ用） */
+  wide?: boolean;
+}
+
+const { wide = false, ...seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <Seo {...seo} />
+  </head>
+  <body>
+    <a href="#main" class="visually-hidden">本文へスキップ</a>
+    <Header />
+    <main id="main" style={wide ? '--w: var(--w-wide)' : undefined}>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

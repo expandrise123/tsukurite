@@ -1,0 +1,16 @@
+# すべてのクローラーに全ページを開放する。
+# AI検索に引用されたいので、AIクローラーもブロックしない。
+#
+# 参考: 主なAIクローラーの User-agent
+#   GPTBot          … OpenAI の学習用クローラー
+#   OAI-SearchBot   … ChatGPT の検索用クローラー
+#   ClaudeBot       … Anthropic のクローラー
+#   PerplexityBot   … Perplexity のクローラー
+#   Google-Extended … Google AI の学習制御用
+#
+# 特定のAIだけ拒否したい場合は、下に Disallow を追記する。
+
+User-agent: *
+Allow: /
+
+Sitemap: https://tsukurite.dev/sitemap.xml
