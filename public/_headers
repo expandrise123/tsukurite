@@ -28,7 +28,8 @@
   # ── Content-Security-Policy ──────────────────────────
   # 読み込める資源をホワイトリストで制限する。最も強力だが、最も壊れやすい。
   #
-  # 現状は外部スクリプトを一切使っていない前提の設定。
+  # 外部スクリプトは Cloudflare Web Analytics のみ許可している。
+  # （beacon を static.cloudflareinsights.com から読み込み、cloudflareinsights.com へ送信する）
   # style-src に 'unsafe-inline' が必要なのは、Astroがコンポーネント単位の
   # スタイルを <style> タグとして埋め込むため。
   #
@@ -39,7 +40,7 @@
   #
   # デプロイ後、ブラウザの開発者ツール Console に CSP violation が
   # 出ていないか必ず確認する。
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 
 # ビルド成果物は内容が変わればファイル名も変わるので、長期キャッシュしてよい
 /_astro/*
