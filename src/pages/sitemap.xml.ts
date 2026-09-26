@@ -12,6 +12,7 @@ import { posts, escapeXml } from '../lib/posts';
 const STATIC_PAGES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/about', priority: '0.5', changefreq: 'monthly' },
+  { path: '/privacy', priority: '0.2', changefreq: 'yearly' },
 ];
 
 export const GET: APIRoute = () => {
